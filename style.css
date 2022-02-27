@@ -16,7 +16,7 @@ body{
     margin-top: 23px;
 }
  #container{
-    width: 950px;
+    width: 1300px;
     height: 580px;
     display: block;
     margin: auto;
@@ -27,7 +27,7 @@ body{
     border-radius: 10px;
  }
  #room_message-container{
-    width: 44%;
+    width: 30%;
     height: 500px;
     margin-bottom: 23px;
     margin-top: 23px;
@@ -43,7 +43,7 @@ body{
     margin-bottom: 23px;
     margin-top: 23px;
     margin-right: 23px;
-    width: 44%;
+    width: 30%;
     height: 500px;
     float: right;
     background-image: url("https://ik.imagekit.io/obqlhlbh43oj/ju/download__3__w_cQmAfs8.jfif?ik-sdk-version=javascript-1.4.3&updatedAt=1645804223107");
@@ -51,6 +51,24 @@ body{
     overflow-y: auto;
     border: 2px solid black;
     border-radius: 10px;
+ }
+ #unicast_message-container{
+   width: 30%;
+   height: 500px;
+   margin-bottom: 23px;
+   margin-top: 23px;
+   margin-left: 43px;
+   background-image: url("https://ik.imagekit.io/obqlhlbh43oj/ju/download__3__w_cQmAfs8.jfif?ik-sdk-version=javascript-1.4.3&updatedAt=1645804223107");
+   
+   overflow-y: auto;
+   float: left;
+   border: 2px solid black;
+   border-radius: 10px;
+}
+ #recv_name{
+    display: block;
+    margin: auto;
+    width: 2cm;
  }
  .exitroom{
     display: block;

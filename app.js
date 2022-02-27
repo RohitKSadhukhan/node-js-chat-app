@@ -12,6 +12,7 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, 'main.html'));
 });
 users = [];
+const users_map = {};
 io.on("connection", function (socket) {
   console.log("A user connected");
   socket.on("setUsername", function (data) {
@@ -23,6 +24,7 @@ io.on("connection", function (socket) {
       );
     } else {
       users.push(data);
+      users_map[socket.id]={data};
       socket.emit("userSet", { username: data });
     }
   });
@@ -55,15 +57,33 @@ io.on("connection", function (socket) {
   });
   
   socket.on("sendImage", function (data){
-    
-    if (data.roomname != "") {
-      socket.broadcast.to(data.roomname).emit("recvImage", data);
-      socket.broadcast.to(data.roomname).emit("play");
-    } else {
-      socket.broadcast.emit("recvImage", data);
-      socket.broadcast.emit("play");
+    if(data.recv_name){
+        let socket_id_receiver = returnkey(data.recv_name);
+        socket.broadcast.to(socket_id_receiver).emit("recvImage", data);
+        socket.broadcast.to(socket_id_receiver).emit("play");
+        //console.log(data.recv_name);
     }
-    
+    else{
+      if (data.roomname != "") {
+        socket.broadcast.to(data.roomname).emit("recvImage", data);
+        socket.broadcast.to(data.roomname).emit("play");
+      } else {
+        socket.broadcast.emit("recvImage", data);
+        socket.broadcast.emit("play");
+      }
+    }
+  });
+  function returnkey(nametosend){
+    for(var i in users_map){
+      if(users_map[i].data==nametosend){
+        return i;
+      }
+    }
+  }
+  socket.on("send_unicast",function(data){
+    let socket_id_receiver = returnkey(data.recv_name);
+    socket.broadcast.to(socket_id_receiver).emit("recv_unicast",data);
+    socket.broadcast.to(socket_id_receiver).emit("play");
   });
   socket.on("msg", function (data) {
     //Send message to everyone

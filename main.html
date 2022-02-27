@@ -28,6 +28,7 @@
     var name = prompt("enter name");
     var today;
     var time;
+    var unicast_recv_name="";
     var imageMessage = null;
     socket.emit("setUsername", name);
     var user;
@@ -40,11 +41,13 @@
       user = data.username;
       document.getElementById("rest-part").innerHTML =
         '<input type="text" id="message">\
+        <input type="text" id="recv_name" placeholder="Enter receiver name!">\
          <button type="button" name="button" class="send" onclick="sendMessage()">Send</button>\
          <input type="file" id="image" accept="image/*" onChange="uploadImage(this)">';
       document.getElementById("container").innerHTML =
         '<div id="room_message-container"></div>\
-          <div id="broadcast_message-container2"></div>';
+          <div id="broadcast_message-container2"></div>\
+          <div id="unicast_message-container"></div>';
     });
     const imgkitPrivate = "private_CER5B9zMd1xdwG+doG779At0SUc=";
 
@@ -77,19 +80,30 @@
             today.getHours() +
             ":" +
             today.getMinutes()+" ";
-            socket.emit("sendImage",{msg: response.url, time : time , user: user , roomname: roomname});
-            
-            if (roomname != "") {
-              document.getElementById("room_message-container").innerHTML += '<div class="mytext"><b>' + user + time + "</b>: " + "<a href='"+response.url+"' target=_blank>" + "<img src='" + response.url + "' \
-                width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
-              //"<img src='" + response.url + "' width=100%>";
-            } else {
-              document.getElementById(
-                "broadcast_message-container2"
-              ).innerHTML += '<div class="mytext"><b>' + user + time + "</b>: " + "<a href='"+response.url+"' target=_blank>" + "<img src='" + response.url + "' \
+            var recv_name = document.getElementById("recv_name").value;
+            socket.emit("sendImage",{msg: response.url, time : time , user: user , roomname: roomname,recv_name: recv_name});
+            if(recv_name){
+              document.getElementById("unicast_message-container").innerHTML += '<div class="mytext"><b>'
+                 + user +" to "+ recv_name + time + "</b>: " + "<a href='"+response.url+"' target=_blank>"
+                   + "<img src='" + response.url + "' \
                 width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
             }
+            else{
+              if (roomname != "") {
+                document.getElementById("room_message-container").innerHTML += '<div class="mytext"><b>'
+                   + user + time + "</b>: " + "<a href='"+response.url+"' target=_blank>"
+                     + "<img src='" + response.url + "' \
+                width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+                //"<img src='" + response.url + "' width=100%>";
+              } else {
+                document.getElementById(
+                "broadcast_message-container2"
+                ).innerHTML += '<div class="mytext"><b>' + user + time + "</b>: " + "<a href='"+response.url+"' target=_blank>" + "<img src='" + response.url + "' \
+                width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+              }
+            }
           }
+          document.getElementById("recv_name").value=null;
         })
         .catch((e) => {
           console.log(e);
@@ -98,20 +112,29 @@
     }
     socket.on("recvImage", function (data){
       if (user) {
-        
-        if (data.roomname != "") {
-          document.getElementById("room_message-container").innerHTML +=
-          '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
-             width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
-        } else {
-          document.getElementById("broadcast_message-container2").innerHTML +=
-          '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
-             width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+        if(data.recv_name){
+          document.getElementById("unicast_message-container").innerHTML +=
+            '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
+              width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+        }
+        else{
+          if (data.roomname != "") {
+            document.getElementById("room_message-container").innerHTML +=
+            '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
+              width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+          } else {
+            document.getElementById("broadcast_message-container2").innerHTML +=
+            '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
+              width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+          }
         }
       }
       
     });
-    
+    socket.on("recv_unicast",function(data){
+      document.getElementById("unicast_message-container").innerHTML +=
+            '<div class="text"><b>' + data.myname + data.time + "</b>: " + data.msg + "</div>";
+    });
     function sendMessage() {
       var msg = document.getElementById("message").value;
       if (msg) {
@@ -120,22 +143,29 @@
           today.getHours() +
           ":" +
           today.getMinutes()+" ";
-        socket.emit("msg", {
-          message: msg,
-          user: user,
-          roomname: roomname,
-          time: time,
-        });
+        
         
         delete today;
-        if (roomname != "") {
-          document.getElementById("room_message-container").innerHTML +=
-            '<div class="mytext"><b>' + user + time + "</b>: " + msg + "</div>";
-        } else {
-          document.getElementById("broadcast_message-container2").innerHTML +=
-            '<div class="mytext"><b>' + user + time + "</b>: " + msg + "</div>";
+        var recv_name = document.getElementById("recv_name").value;
+        if(recv_name){
+          socket.emit("send_unicast", {msg: msg, myname: user, time: time, recv_name: recv_name});
+          document.getElementById("unicast_message-container").innerHTML +=
+            '<div class="mytext"><b>' + user + " to " + recv_name + time + "</b>: " + msg + "</div>";
+            
         }
+        else{
+          socket.emit("msg", {message: msg,user: user,roomname: roomname,time: time,});
+          if (roomname != "") {
+            document.getElementById("room_message-container").innerHTML +=
+            '<div class="mytext"><b>' + user + time + "</b>: " + msg + "</div>";
+          } else {
+            document.getElementById("broadcast_message-container2").innerHTML +=
+            '<div class="mytext"><b>' + user + time + "</b>: " + msg + "</div>";
+          }
       }
+      }
+      document.getElementById("message").value=null;
+      document.getElementById("recv_name").value=null;
     }
     var sound = new Audio('/audio/1.mp3');   
       socket.on('play', function () {
