@@ -1,5 +1,6 @@
 const express = require("express");
 var app = express();
+const path = require('path');
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var fs = require("fs");
@@ -8,7 +9,7 @@ app.use(express.static(__dirname + "/"));
 
 app.get("/", function (req, res) {
   //console.log(req.url);
-  res.sendFile("E:/sem6/it/a2/main.html");
+  res.sendFile(path.join(__dirname, 'main.html'));
 });
 users = [];
 io.on("connection", function (socket) {
