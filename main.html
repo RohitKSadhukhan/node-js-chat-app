@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+    <!-- This is the style for the header -->
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+    <title>Document</title>
+  </head>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+    var roomname = "";
+    var name = prompt("enter name");
+    var today;
+    var time;
+    var imageMessage = null;
+    socket.emit("setUsername", name);
+    var user;
+    socket.on("userExists", function (data) {
+      document.getElementById("error-container").innerHTML = data;
+      name = prompt("enter name");
+      socket.emit("setUsername", name);
+    });
+    socket.on("userSet", function (data) {
+      user = data.username;
+      document.getElementById("rest-part").innerHTML =
+        '<input type="text" id="message">\
+         <button type="button" name="button" class="send" onclick="sendMessage()">Send</button>\
+         <input type="file" id="image" accept="image/*" onChange="uploadImage(this)">';
+      document.getElementById("container").innerHTML =
+        '<div id="room_message-container"></div>\
+          <div id="broadcast_message-container2"></div>';
+    });
+    const imgkitPrivate = "private_CER5B9zMd1xdwG+doG779At0SUc=";
+
+    function uploadImage(element) {
+      if (!element.files[0]) return;
+      const formData = new FormData();
+      let foo = "";
+      for (i = 0; i < 19; ++i) foo += Math.floor(Math.random() * 10);
+
+      formData.append("file", element.files[0]);
+      formData.append("fileName",  element.files[0].name);
+      formData.append("useUniqueFileName", false);
+      formData.append("folder", "/ju/it/assign2/");
+
+
+      fetch(`https://upload.imagekit.io/api/v1/files/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${btoa(imgkitPrivate+':')}`
+        },
+        body: formData
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          //console.log(response);
+          //console.log(response.url);
+          if (response.fileId) {
+            today = new Date();
+            time ="  "+
+            today.getHours() +
+            ":" +
+            today.getMinutes()+" ";
+            socket.emit("sendImage",{msg: response.url, time : time , user: user , roomname: roomname});
+            
+            if (roomname != "") {
+              document.getElementById("room_message-container").innerHTML += '<div class="mytext"><b>' + user + time + "</b>: " + "<a href='"+response.url+"' target=_blank>" + "<img src='" + response.url + "' \
+                width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+              //"<img src='" + response.url + "' width=100%>";
+            } else {
+              document.getElementById(
+                "broadcast_message-container2"
+              ).innerHTML += '<div class="mytext"><b>' + user + time + "</b>: " + "<a href='"+response.url+"' target=_blank>" + "<img src='" + response.url + "' \
+                width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+            }
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+          alert("Could not upload image!");
+        });
+    }
+    socket.on("recvImage", function (data){
+      if (user) {
+        
+        if (data.roomname != "") {
+          document.getElementById("room_message-container").innerHTML +=
+          '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
+             width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+        } else {
+          document.getElementById("broadcast_message-container2").innerHTML +=
+          '<div class="text"><b>' + data.user + data.time + "</b>: " + "<a href='"+data.msg+"' target=_blank>"+"<img src='" + data.msg + "'\
+             width=130px display=block margin-left=auto margin-right=auto>" + "</a>" +"</div>";
+        }
+      }
+      
+    });
+    
+    function sendMessage() {
+      var msg = document.getElementById("message").value;
+      if (msg) {
+        today = new Date();
+        time ="  "+
+          today.getHours() +
+          ":" +
+          today.getMinutes()+" ";
+        socket.emit("msg", {
+          message: msg,
+          user: user,
+          roomname: roomname,
+          time: time,
+        });
+        
+        delete today;
+        if (roomname != "") {
+          document.getElementById("room_message-container").innerHTML +=
+            '<div class="mytext"><b>' + user + time + "</b>: " + msg + "</div>";
+        } else {
+          document.getElementById("broadcast_message-container2").innerHTML +=
+            '<div class="mytext"><b>' + user + time + "</b>: " + msg + "</div>";
+        }
+      }
+    }
+    var sound = new Audio('/audio/1.mp3');   
+      socket.on('play', function () {
+      sound.play();   
+    });
+    socket.on("newmsg", function (data) {
+      if (user) {
+        console.log(data);
+        if (data.roomname != "") {
+          document.getElementById("room_message-container").innerHTML +=
+            '<div class="text"><b>' +
+            data.user +
+            data.time +
+            "</b>: " +
+            data.message + // <img src= "data.message" width=100%>
+            "</div>";
+        } else {
+          document.getElementById("broadcast_message-container2").innerHTML +=
+            '<div class="text"><b>' +
+            data.user +
+            data.time +
+            "</b>: " +
+            data.message +
+            "</div>";
+        }
+      }
+      
+    });
+    socket.on("status", function (data) {
+      if (user) {
+        
+        document.getElementById("room_message-container").innerHTML +=
+          '<div class="status"><b>' +
+          data.user +
+          "</b>: " +
+          data.message +
+          "</div>";
+      }
+    });
+    function sendRoomName() {
+      roomname = document.getElementById("roomname").value;
+      if (roomname) {
+        socket.emit("join-room", { roomname: roomname, user: user });
+        document.getElementById("top_part").innerHTML =
+          '<button type="button" name="button"\
+             class="exitroom" onclick="exitRoom()">exit room</button>';
+      }
+    }
+    function exitRoom() {
+      socket.emit("exit-room", { room: roomname, user: user });
+      roomname = "";
+      document.getElementById("top_part").innerHTML =
+        '<input id="roomname" type="text" name="roomname" value="" placeholder="Enter room name!">\
+        <button type="button" name="button" class="sendroom" onclick="sendRoomName()">enter</button>';
+      document.getElementById("room_message-container").innerHTML = "";
+    }
+  </script>
+  <body>
+    <!-- Start of the header -->
+    
+    <img src="https://ik.imagekit.io/obqlhlbh43oj/ju/it/assign2/a60625748a61e88e4ae17d53bc286910_fp5PH8b4Z.png?ik-sdk-version=javascript-1.4.3&updatedAt=1645795558901" class="logo">
+    <h3 class="ihead">i-chat</h3>
+    <!-- End of the header -->
+    <div id="top_part">
+      <input
+        id="roomname"
+        type="text"
+        name="roomname"
+        value=""
+        placeholder="Enter room name!"
+      />
+      <button
+        type="button"
+        name="button"
+        class="sendroom"
+        onclick="sendRoomName()"
+      >
+        enter
+      </button>
+    </div>
+
+    <div id="container">
+      <div id="error-container"></div>
+    </div>
+    <div id="rest-part">
+      <input
+        id="name"
+        type="text"
+        name="name"
+        value=""
+        placeholder="Enter your name!"
+      />
+      <button type="button" name="button" class="send" onclick="setUsername()">
+        Let me chat!
+      </button>
+    </div>
+  </body>
+</html>

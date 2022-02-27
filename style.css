@@ -1,0 +1,138 @@
+body{
+   background-image: url("https://ik.imagekit.io/obqlhlbh43oj/ju/download__1__XvN4IsS4A7hg.jfif?ik-sdk-version=javascript-1.4.3&updatedAt=1645804128826");
+ }
+ #top_part{
+    max-width: 350px;
+    display: block;
+    margin: auto;
+ }
+ #middle_part{
+    max-width: 350px;
+    display: block;
+    margin: auto;
+ }
+#rest-part{
+    margin-bottom: 23px;
+    margin-top: 23px;
+}
+ #container{
+    width: 950px;
+    height: 580px;
+    display: block;
+    margin: auto;
+    
+    
+    
+    border: 2px solid black;
+    border-radius: 10px;
+ }
+ #room_message-container{
+    width: 44%;
+    height: 500px;
+    margin-bottom: 23px;
+    margin-top: 23px;
+    margin-left: 23px;
+    background-image: url("https://ik.imagekit.io/obqlhlbh43oj/ju/download__3__w_cQmAfs8.jfif?ik-sdk-version=javascript-1.4.3&updatedAt=1645804223107");
+    
+    overflow-y: auto;
+    float: left;
+    border: 2px solid black;
+    border-radius: 10px;
+ }
+ #broadcast_message-container2{
+    margin-bottom: 23px;
+    margin-top: 23px;
+    margin-right: 23px;
+    width: 44%;
+    height: 500px;
+    float: right;
+    background-image: url("https://ik.imagekit.io/obqlhlbh43oj/ju/download__3__w_cQmAfs8.jfif?ik-sdk-version=javascript-1.4.3&updatedAt=1645804223107");
+    
+    overflow-y: auto;
+    border: 2px solid black;
+    border-radius: 10px;
+ }
+ .exitroom{
+    display: block;
+    margin: auto;
+ }
+ .sendroom{
+    margin-bottom: 23px;
+ }
+ #image{
+   display: block;
+   margin: auto;
+ }
+ .ihead{
+    max-width: 78px;
+    display: block;
+    margin: auto;
+ }
+ #name{
+    display: block;
+    margin: auto;
+    height : 1cm;
+    
+ }
+ .logo{
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
+   width: 50px;
+   
+ }
+ #message{
+    display: block;
+    margin: auto;
+    height: 1cm;
+    width: 8cm;
+    
+    overflow-wrap: break-word;
+    text-align: center;
+    overflow-x: scroll;
+    border: 2px solid black;
+    border-radius: 10px;
+ }
+ #text{
+    display: block;
+    margin: auto;
+    
+ }
+ .send{
+    display: block;
+    margin: auto;
+ }
+ .mytext{
+    background-color: rgb(255, 255, 255);
+    inline-size: 3cm;
+    overflow-wrap: break-word;
+    width: 40%;
+    padding: 10px;
+    margin: 17px 3px;
+    border: 2px solid black;
+    border-radius: 10px;
+    float: right;
+    clear: both;
+ }
+ .text{
+    background-color: wheat;
+    inline-size: 3cm;
+    overflow-wrap: break-word;
+    width: 40%;
+    padding: 10px;
+    margin: 17px 3px;
+    border: 2px solid black;
+    border-radius: 10px;
+    float: left;
+    clear: both;
+ }    
+ .status{
+    background-color: white;
+    width: 33%;
+    padding: 10px;
+    display: block;
+    margin: auto;
+    border: 2px solid black;
+    border-radius: 10px;
+    clear: both;
+ }    
