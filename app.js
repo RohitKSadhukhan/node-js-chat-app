@@ -29,7 +29,7 @@ io.on("connection", function (socket) {
     }
   });
   socket.on("join-room", function (data) {
-    console.log(data.roomname);
+    //console.log(data.roomname);
     socket.join(data.roomname);
 
     socket.broadcast
@@ -87,7 +87,7 @@ io.on("connection", function (socket) {
   });
   socket.on("msg", function (data) {
     //Send message to everyone
-    console.log("user from  " + data.roomname + data.user);
+    //console.log("user from  " + data.roomname + data.user);
 
     if (data.roomname != "") {
       socket.broadcast.to(data.roomname).emit("newmsg", data);
